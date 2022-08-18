@@ -77,12 +77,12 @@ public class UserController {
 	@PostMapping("/add")
 	public UserModel addusers(@RequestBody UserModel userModel) {
 		String encryptedpassword = passwordEncoder.encode(userModel.getPassword());
-		Roles role = new Roles();
-		Set<Roles> roleList = new HashSet<>();
-		roleList.add(role);
-		role.setName(ADMIN_ROLE);
+//		Roles role = new Roles();
+//		Set<Roles> roleList = new HashSet<>();
+//		roleList.add(role);
+//		role.setName(ADMIN_ROLE);
 
-		userModel.setRoles(roleList);
+//		userModel.setRoles(roleList);
 		userModel.setPassword(encryptedpassword);
 		return userService.addUser(userModel);
 	}
