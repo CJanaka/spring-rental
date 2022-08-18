@@ -39,7 +39,7 @@ import com.ang.rental.services.UserService;
 public class UserController {
 
 	public static final String DEFAULT_ROLE = "ROLE_USER";
-	public static final String ADMIN_ROLE = "ROLE_ADMIN";
+//	public static final String ADMIN_ROLE = "ROLE_ADMIN";
 
 	@Autowired
 	private UserService userService;
@@ -77,12 +77,12 @@ public class UserController {
 	@PostMapping("/add")
 	public UserModel addusers(@RequestBody UserModel userModel) {
 		String encryptedpassword = passwordEncoder.encode(userModel.getPassword());
-//		Roles role = new Roles();
-//		Set<Roles> roleList = new HashSet<>();
-//		roleList.add(role);
-//		role.setName(ADMIN_ROLE);
+		Roles role = new Roles();
+		Set<Roles> roleList = new HashSet<>();
+		roleList.add(role);
+		role.setName(DEFAULT_ROLE);
 
-//		userModel.setRoles(roleList);
+		userModel.setRoles(roleList);
 		userModel.setPassword(encryptedpassword);
 		return userService.addUser(userModel);
 	}
