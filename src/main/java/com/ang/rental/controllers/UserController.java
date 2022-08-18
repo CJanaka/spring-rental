@@ -39,7 +39,7 @@ import com.ang.rental.services.UserService;
 public class UserController {
 
 	public static final String DEFAULT_ROLE = "ROLE_USER";
-	public static final String ADMIN_ROLE = "ROLE_USER";
+	public static final String ADMIN_ROLE = "ROLE_ADMIN";
 
 	@Autowired
 	private UserService userService;
