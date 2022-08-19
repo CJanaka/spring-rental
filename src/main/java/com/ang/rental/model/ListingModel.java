@@ -33,7 +33,6 @@ public class ListingModel {
 	private String address;
 	@ManyToOne
 	@JoinColumn(name = "userId")
-	@JsonIgnore
 	private UserModel userModel;
 	@OneToMany(targetEntity = ListingImagesModel.class, cascade = CascadeType.ALL)
 	@JoinColumn(name = "listId", referencedColumnName = "listId")
