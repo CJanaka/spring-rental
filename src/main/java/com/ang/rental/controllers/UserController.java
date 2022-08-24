@@ -33,9 +33,9 @@ import com.ang.rental.services.ListImgService;
 import com.ang.rental.services.ListingService;
 import com.ang.rental.services.UserService;
 
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:4200/**")
 @RestController
-@RequestMapping("/rental")
+@RequestMapping("/api/v1")
 public class UserController {
 
 	public static final String DEFAULT_ROLE = "ROLE_USER";
@@ -172,9 +172,9 @@ public class UserController {
 		return listingService.delete(id);
 	}
 
-	@GetMapping("/listbyname/{item}")
-	public List<DisplayListing> displayListing(@PathVariable("item") String item) {
-		return listingService.displayListing(item);
+	@GetMapping("/listby-categoryid/{id}")
+	public List<ListingModel> displayListingByCategoryId(@PathVariable("id") int categoryId) {
+		return listingService.displayListByCategoryId(categoryId);
 	}
 
 	@GetMapping("/detailed-listing/{listId}")
@@ -183,7 +183,7 @@ public class UserController {
 	}
 
 	@GetMapping("/search/{item}")
-	public List<String> getListByName(@PathVariable("item") String item) {
+	public List<String> getListKeyRelease(@PathVariable("item") String item) {
 		return listingService.getkeyByRelease(item);
 	}
 
@@ -192,7 +192,7 @@ public class UserController {
 		return listingService.getByName(name);
 	}
 
-	@GetMapping("/list_and_mainimage")
+	@GetMapping("/list-and-mainimage")
 	public List<DisplayListing> getListingWithMainImage() {
 		return listImage.getListWithMainImage();
 	}

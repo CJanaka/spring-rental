@@ -19,8 +19,9 @@ public interface ListRepository extends JpaRepository<ListingModel, Long> {
 //			+ " FROM ListingModel l JOIN l.priceModel p JOIN l.listingImagesModel i WHERE l.item LIKE %:item%") 
 	public List<ListingModel> findByItemIgnoreCase(String item);
 	
-	
 	public List<ListingModel> findByUserModelUserId(long userId);
+	
+	public List<ListingModel> findByCategoryCategoryIdAndListingImagesModelImgType(long categoryId, String imgType);
 	
 	@Query("SELECT distinct l.item FROM ListingModel l WHERE l.item LIKE lower(concat('%', :item,'%'))")
 	public List<String> getByItemLike(String item);

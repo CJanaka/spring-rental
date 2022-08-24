@@ -56,7 +56,9 @@ public class ListingService {
 		listRepo.deleteById(id);
 		return listRepo.findById(id);
 	}
+
+	public List<ListingModel> displayListByCategoryId(int categoryId) {
+		return listRepo.findByCategoryCategoryIdAndListingImagesModelImgType(categoryId, "M");
+	}
 	
-
-
 }

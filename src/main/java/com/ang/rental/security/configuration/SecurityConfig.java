@@ -3,6 +3,8 @@ package com.ang.rental.security.configuration;
 import com.ang.rental.jwtfilter.JwtFilter;
 import com.ang.rental.services.GroupUserDetailservice;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +19,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.util.pattern.PathPattern;
@@ -39,16 +43,27 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.cors();
+		
+        http.cors().configurationSource(new CorsConfigurationSource() {
+            @Override
+            public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                return new CorsConfiguration().applyPermitDefaultValues();
+            }
+        });
+        
 		http.csrf().disable();
-		http.authorizeRequests().antMatchers("/rental/add").permitAll().antMatchers("/rental/listbyname/**").permitAll()
-				.antMatchers("/rental/detailed-listing/**").permitAll().antMatchers("/rental/list_and_mainimage")
-				.permitAll().antMatchers("/rental/all-categories").permitAll().antMatchers("/rental/all-listings/**")
-				.permitAll().antMatchers("/rental/find/**").permitAll().antMatchers("/rental/search/**").permitAll()
-				.antMatchers("/rental/auth").permitAll()
-				.antMatchers("/rental/auth").permitAll()
-				.antMatchers(HttpMethod.OPTIONS,"/rental/**").permitAll()
-				.and().authorizeRequests().antMatchers("/rental/**").authenticated().and().exceptionHandling().and()
+		http.authorizeRequests().antMatchers("/api/v1/add").permitAll().antMatchers("/api/v1/listbyname/**").permitAll()
+				.antMatchers("/api/v1/detailed-listing/**").permitAll()
+				.antMatchers("/api/v1/list-and-mainimage").permitAll()
+				.antMatchers("/api/v1/all-categories").permitAll()
+				.antMatchers("/api/v1/all-listings/**").permitAll()
+				.antMatchers("/api/v1/find/**").permitAll()
+				.antMatchers("/api/v1/getlist/**").permitAll()
+				.antMatchers("/api/v1/search/**").permitAll()
+				.antMatchers("/api/v1/auth").permitAll()
+				.antMatchers("/api/v1/listby-categoryid/**").permitAll()
+				.antMatchers(HttpMethod.OPTIONS,"/api/v1/**").permitAll()
+				.and().authorizeRequests().antMatchers("/api/v1/**").authenticated().and().exceptionHandling().and()
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 	}
