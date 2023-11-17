@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -38,9 +39,6 @@ import com.ang.rental.services.UserService;
 @RequestMapping("/api/v1")
 public class UserController {
 
-	public static final String DEFAULT_ROLE = "ROLE_USER";
-//	public static final String ADMIN_ROLE = "ROLE_ADMIN";
-
 	@Autowired
 	private UserService userService;
 
@@ -52,9 +50,6 @@ public class UserController {
 
 	@Autowired
 	private CategoryService categoryService;
-	
-	@Autowired
-	private BCryptPasswordEncoder passwordEncoder;
 
 	@Autowired
 	private AuthenticationManager authenticationManager;
@@ -63,7 +58,7 @@ public class UserController {
 	private JwtUtil jwtUtil;
 
 	@PostMapping("/auth")
-	public String genarateToken(@RequestBody AuthRequest authRequest) throws Exception {
+	public String generateToken(@RequestBody AuthRequest authRequest) throws Exception {
 		Authentication authentication;
 		try {
 			authentication = authenticationManager.authenticate(
@@ -75,19 +70,12 @@ public class UserController {
 	}
 
 	@PostMapping("/add")
-	public UserModel addusers(@RequestBody UserModel userModel) {
-		String encryptedpassword = passwordEncoder.encode(userModel.getPassword());
-		Roles role = new Roles();
-		Set<Roles> roleList = new HashSet<>();
-		roleList.add(role);
-		role.setName(DEFAULT_ROLE);
+	public UserModel addUsers(@RequestBody UserModel userModel) {
 
-		userModel.setRoles(roleList);
-		userModel.setPassword(encryptedpassword);
 		return userService.addUser(userModel);
 	}
 
-	@GetMapping("/all-users")
+	@GetMapping("/auth/all-users")
 	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 	public List<UserModel> getAllusers() {
 		return userService.getAll();
@@ -103,7 +91,7 @@ public class UserController {
 		return userService.userGetById(id);
 	}
 
-	@PutMapping("/update_user/{id}")
+	@PostMapping("/update_user/{id}")
 	@PreAuthorize("hasAuthority('ROLE_USER')")
 	public UserModel updateUse(@PathVariable("id") long id, @RequestBody UserModel userModel) {
 		return userService.update(id, userModel);
@@ -114,25 +102,26 @@ public class UserController {
 		userService.delete(id);
 	}
 
-	@PutMapping("/restrict/{id}")
+	@PostMapping("/auth/restrict/{id}")
 	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 	public UserModel restrictUser(@PathVariable("id") long id, @RequestBody boolean restrict) {
 		return userService.restrict(id, restrict);
 	}
 
-	@PutMapping("/verify/{id}")
+	@PostMapping("/auth/verify/{id}")
 	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
-	public UserModel verfyUser(@PathVariable("id") long id, @RequestBody boolean varify) {
-		return userService.verfy(id, varify);
+	public UserModel verifyUser(@PathVariable("id") long id, @RequestBody boolean verify) {
+		return userService.verify(id, verify);
 	}
 
 	@PostMapping("/create-listing")
-	@PreAuthorize("hasAuthority('ROLE_USER')")
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
+
 	public ListingModel createList(@RequestBody ListingModel listingModel) {
 		return listingService.createListin(listingModel);
 	}
 
-	@PostMapping("/add-category")
+	@PostMapping("/auth/add-category")
 	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 	public CategoryModel addCategory(@RequestBody CategoryModel categoryModel) {
 		return categoryService.setCategory(categoryModel);
@@ -143,7 +132,7 @@ public class UserController {
 		return categoryService.getCategories();
 	}
 
-	@PutMapping("/update-category/{id}")
+	@PostMapping("/update-category/{id}")
 	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 	public CategoryModel updateCategory(@PathVariable("id") long id, @RequestBody CategoryModel category) {
 		return categoryService.update(id, category);
@@ -160,7 +149,7 @@ public class UserController {
 		return listingService.getAllListings(userId);
 	}
 
-	@PutMapping("/updatelisting/{id}")
+	@PostMapping("/updatelisting/{id}")
 	@PreAuthorize("hasAuthority('ROLE_USER')")
 	public ListingModel updateListing(@PathVariable("id") long id, @RequestBody ListingModel listingModel) {
 		return listingService.update(id, listingModel);

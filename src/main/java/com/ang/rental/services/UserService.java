@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import com.ang.rental.Common;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.ang.rental.Repository.UserRepository;
@@ -18,8 +20,18 @@ public class UserService {
 	@Autowired
 	private UserRepository userRepository;
 
-	public UserModel addUser(UserModel userModel) {
+	@Autowired
+	private BCryptPasswordEncoder passwordEncoder;
 
+	public UserModel addUser(UserModel userModel) {
+		String encryptedPassword = passwordEncoder.encode(userModel.getPassword());
+		Roles role = new Roles();
+		Set<Roles> roleList = new HashSet<>();
+		roleList.add(role);
+		role.setName(Common.DEFAULT_ROLE);
+
+		userModel.setRoles(roleList);
+		userModel.setPassword(encryptedPassword);
 		return userRepository.save(userModel);
 	}
 
@@ -56,7 +68,7 @@ public class UserService {
 		return userRepository.save(existingUser);
 	}
 
-	public UserModel verfy(long id, boolean varify) {
+	public UserModel verify(long id, boolean varify) {
 		UserModel existingUser = userRepository.findById(id).get();
 		existingUser.setVerify(varify);
 		return userRepository.save(existingUser);

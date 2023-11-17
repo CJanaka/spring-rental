@@ -4,9 +4,10 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,15 +15,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.SignatureException;
-import io.jsonwebtoken.UnsupportedJwtException;
 
 @Service
 public class JwtUtil implements Serializable {
+
+	private static final Logger log = LoggerFactory.getLogger(JwtUtil.class);
 
 	private static final long serialVersionUID = 1L;
 
@@ -30,20 +29,21 @@ public class JwtUtil implements Serializable {
 	private String secret;
 
 	public String extractUsername(String token) {
-		return extractClaim(token, Claims::getSubject);
+		SecurityDto securityDto = extractClaim(token);
+		return securityDto.getUserName();
 	}
 
-	private Boolean isTokenExpired(String token) {
-		return extractExpiration(token).before(new Date());
-	}
+	public SecurityDto extractClaim(String token) {
+		log.info("[extractClaim] "+"Claims extracting started..");
 
-	public Date extractExpiration(String token) {
-		return extractClaim(token, Claims::getExpiration);
-	}
-
-	public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+		SecurityDto securityDto = new SecurityDto();
 		Claims claims = extractAllClaims(token);
-		return claimsResolver.apply(claims);
+		securityDto.setExpDate(claims.getExpiration());
+		securityDto.setUserName(claims.getSubject());
+
+		log.info("[extractClaim] "+"Claims extracting end..");
+
+		return securityDto;
 	}
 
 	private Claims extractAllClaims(String token){
@@ -52,15 +52,23 @@ public class JwtUtil implements Serializable {
 	}
 
 	public String generateToken(Authentication authentication, String username) {
+		log.info("[generateToken] "+"Authorities assigning started..");
+
 		Map<String, Object> claims = new HashMap<>();
+		//This lambda expression is use to assign one or more authorities that returning from getAuthority method like "USER""ADMIN"
 		String authorities = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
-				.collect(Collectors.joining(","));
+				.collect(Collectors.joining(","));//Collectors.joining(",") == join the authorities one by one coma separately.
 		claims.put("authorities", authorities);
+		log.info("[generateToken] "+"Authorities assigning End..");
+
 		String token = createToken(claims, username);
+		log.info("[generateToken] "+"Token creation end..");
+
 		return token;
 	}
 
 	private String createToken(Map<String, Object> claims, String subject) {
+		log.info("[createToken] "+"Token creation started..");
 
 		return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
 				.setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
@@ -68,8 +76,16 @@ public class JwtUtil implements Serializable {
 	}
 
 	public Boolean validateToken(String token, UserDetails userDetails) {
-		final String username = extractUsername(token);
-		return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+		log.info("[validateToken] "+"Token validation started..");
+		SecurityDto securityDto = extractClaim(token);
+		boolean isTokExpired = securityDto.getExpDate().before(new Date());
+
+		if (userDetails.getUsername().equals(securityDto.getUserName()) && !isTokExpired){
+			log.info("[validateToken] "+"Token validation success..");
+			return true;
+		}
+		log.info("[validateToken] "+"Token validation fail..");
+		return false;
 	}
 
 }

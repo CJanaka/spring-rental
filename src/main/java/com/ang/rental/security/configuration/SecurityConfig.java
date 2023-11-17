@@ -63,7 +63,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/api/v1/auth").permitAll()
 				.antMatchers("/api/v1/listby-categoryid/**").permitAll()
 				.antMatchers(HttpMethod.OPTIONS,"/api/v1/**").permitAll()
-				.and().authorizeRequests().antMatchers("/api/v1/**").authenticated().and().exceptionHandling().and()
+				.and().authorizeRequests().antMatchers("/api/v1/auth/**").authenticated().and().exceptionHandling().and()
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 	}
