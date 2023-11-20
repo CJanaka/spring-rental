@@ -64,18 +64,17 @@ public class UserController {
 			authentication = authenticationManager.authenticate(
 					new UsernamePasswordAuthenticationToken(authRequest.getUserName(), authRequest.getPassword()));
 		} catch (Exception e) {
-			throw new Exception("Invalid user name");
+			throw new Exception("Authentication Error "+ e);
 		}
 		return jwtUtil.generateToken(authentication, authRequest.getUserName());
 	}
 
 	@PostMapping("/add")
 	public UserModel addUsers(@RequestBody UserModel userModel) {
-
 		return userService.addUser(userModel);
 	}
 
-	@GetMapping("/auth/all-users")
+	@GetMapping("/auth/all/users")
 	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 	public List<UserModel> getAllusers() {
 		return userService.getAll();
@@ -86,19 +85,19 @@ public class UserController {
 		return userService.validateUser(mail);
 	}
 
-	@GetMapping("/findbyid/{userId}")
+	@GetMapping("/findby/id/{userId}")
 	public Optional<UserModel> getById(@PathVariable("userId") long id) {
 		return userService.userGetById(id);
 	}
 
-	@PostMapping("/update_user/{id}")
-	@PreAuthorize("hasAuthority('ROLE_USER')")
+	@PostMapping("/update/user/{id}")
 	public UserModel updateUse(@PathVariable("id") long id, @RequestBody UserModel userModel) {
 		return userService.update(id, userModel);
 	}
 
-	@DeleteMapping("/delete-user")
-	public void deleteUser(@PathVariable("id") long id) {
+	@PostMapping("/auth/delete/user")
+	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
+	public void deleteUser(@RequestBody long id) {
 		userService.delete(id);
 	}
 
@@ -114,74 +113,72 @@ public class UserController {
 		return userService.verify(id, verify);
 	}
 
-	@PostMapping("/create-listing")
+	@PostMapping("/create/listing")
 	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
 
 	public ListingModel createList(@RequestBody ListingModel listingModel) {
 		return listingService.createListin(listingModel);
 	}
 
-	@PostMapping("/auth/add-category")
+	@PostMapping("/auth/add/category")
 	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 	public CategoryModel addCategory(@RequestBody CategoryModel categoryModel) {
 		return categoryService.setCategory(categoryModel);
 	}
 
-	@GetMapping("/all-categories")
+	@GetMapping("/all/categories")
 	public List<CategoryModel> getAllCategories() {
 		return categoryService.getCategories();
 	}
 
-	@PostMapping("/update-category/{id}")
+	@PostMapping("/update/category/{id}")
 	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 	public CategoryModel updateCategory(@PathVariable("id") long id, @RequestBody CategoryModel category) {
 		return categoryService.update(id, category);
 	}
 
-	@DeleteMapping("/delete-category/{id}")
+	@PostMapping("/delete/category")
 	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
-	public void deleteCategory(@PathVariable("id") long id) {
+	public void deleteCategory(@RequestBody long id) {
 		categoryService.delete(id);
 	}
 
-	@GetMapping("/all-listings/{id}")
+	@GetMapping("/all/listings/{id}")
 	public List<ListingModel> allListings(@PathVariable("id") long userId) {
 		return listingService.getAllListings(userId);
 	}
 
-	@PostMapping("/updatelisting/{id}")
-	@PreAuthorize("hasAuthority('ROLE_USER')")
+	@PostMapping("/update/listing/{id}")
 	public ListingModel updateListing(@PathVariable("id") long id, @RequestBody ListingModel listingModel) {
 		return listingService.update(id, listingModel);
 	}
 
-	@DeleteMapping("/delete/{id}")
-	@PreAuthorize("hasAuthority('ROLE_USER') and hasAuthority('ROLE_ADMIN')")
-	public Optional<ListingModel> removeListing(@PathVariable("id") long id) {
+	@PostMapping("/delete/listing")
+	public Optional<ListingModel> removeListing(@RequestBody long id) {
 		return listingService.delete(id);
 	}
 
-	@GetMapping("/listby-categoryid/{id}")
+	@GetMapping("/listby/categoryid/{id}")
 	public List<ListingModel> displayListingByCategoryId(@PathVariable("id") int categoryId) {
 		return listingService.displayListByCategoryId(categoryId);
 	}
 
-	@GetMapping("/detailed-listing/{listId}")
+	@GetMapping("/detailed/listing/{listId}")
 	public ListingModel displayListingById(@PathVariable("listId") long id) {
 		return listingService.displayListingById(id);
 	}
 
 	@GetMapping("/search/{item}")
 	public List<String> getListKeyRelease(@PathVariable("item") String item) {
-		return listingService.getkeyByRelease(item);
+		return listingService.getKeyByRelease(item);
 	}
 
-	@GetMapping("/getlist/{name}")
+	@GetMapping("/get/list/{name}")
 	public List<ListingModel> search(@PathVariable("name") String name) {
 		return listingService.getByName(name);
 	}
 
-	@GetMapping("/list-and-mainimage")
+	@GetMapping("/list/and/main/image")
 	public List<DisplayListing> getListingWithMainImage() {
 		return listImage.getListWithMainImage();
 	}

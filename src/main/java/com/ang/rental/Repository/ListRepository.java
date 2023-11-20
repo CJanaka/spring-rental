@@ -23,7 +23,7 @@ public interface ListRepository extends JpaRepository<ListingModel, Long> {
 	
 	public List<ListingModel> findByCategoryCategoryIdAndListingImagesModelImgType(long categoryId, String imgType);
 	
-	@Query("SELECT distinct l.item FROM ListingModel l WHERE l.item LIKE lower(concat('%', :item,'%'))")
+	@Query("SELECT distinct l.item FROM ListingModel l WHERE lower(l.item) LIKE (concat('%', :item,'%'))")
 	public List<String> getByItemLike(String item);
 
 }

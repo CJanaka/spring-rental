@@ -17,6 +17,9 @@ public class ListingService {
 	private ListRepository listRepo;
 		
 	public ListingModel createListin(ListingModel listingModel) {
+		String itemName = listingModel.getItem().toLowerCase();
+		listingModel.setItem(itemName);
+
 		return listRepo.save(listingModel);
 	}
 
@@ -31,8 +34,8 @@ public class ListingService {
 		return listRepo.findById(id).get();
 	}
 	
-	public List<String> getkeyByRelease(String item){
-		return listRepo.getByItemLike(item);
+	public List<String> getKeyByRelease(String item){
+		return listRepo.getByItemLike(item.toLowerCase());
 	}
 	
 	public List<ListingModel> getByName(String item) {

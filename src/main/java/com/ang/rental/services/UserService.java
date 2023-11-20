@@ -6,6 +6,9 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.ang.rental.Common;
+import com.ang.rental.jwtutill.JwtUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,8 @@ import com.ang.rental.model.UserModel;
 
 @Service
 public class UserService {
+
+	private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
 	@Autowired
 	private UserRepository userRepository;
@@ -32,7 +37,19 @@ public class UserService {
 
 		userModel.setRoles(roleList);
 		userModel.setPassword(encryptedPassword);
-		return userRepository.save(userModel);
+		userRepository.save(userModel);
+
+		//If the user is an Admin, below statuses will added by the system.
+		Set<Roles> roles = userModel.getRoles();
+		for (Roles rol: roles) {
+			if (Common.ADMIN_ROLE.equals(rol.getName())){
+				userModel.setActive(true);
+				userModel.setVerify(true);
+				userRepository.save(userModel);
+			}
+		}
+
+		return userModel;
 	}
 
 	public UserModel validateUser(String mail) {
@@ -50,7 +67,9 @@ public class UserService {
 		currentUser.setEmail(userModel.getEmail());
 		currentUser.setAddress(userModel.getAddress());
 		currentUser.setContact(userModel.getContact());
-		currentUser.setPassword(userModel.getPassword());
+		if (userModel.getPassword() != null && !userModel.getPassword().isEmpty()){
+			currentUser.setPassword(passwordEncoder.encode(userModel.getPassword()));
+		}
 		return userRepository.save(currentUser);
 	}
 
@@ -64,6 +83,13 @@ public class UserService {
 
 	public UserModel restrict(long id, boolean restrict) {
 		UserModel existingUser = userRepository.findById(id).get();
+		Set<Roles> roles = existingUser.getRoles();
+		for (Roles role: roles) {
+			if (Common.ADMIN_ROLE.equals(role.getName())){
+				log.warn("[restrict] message = Admin can't restrict admin roles!");
+				return existingUser;
+			}
+		}
 		existingUser.setActive(restrict);
 		return userRepository.save(existingUser);
 	}

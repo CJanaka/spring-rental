@@ -1,5 +1,6 @@
 package com.ang.rental.security.configuration;
 
+import com.ang.rental.Common;
 import com.ang.rental.jwtfilter.JwtFilter;
 import com.ang.rental.services.GroupUserDetailservice;
 
@@ -52,18 +53,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         });
         
 		http.csrf().disable();
-		http.authorizeRequests().antMatchers("/api/v1/add").permitAll().antMatchers("/api/v1/listbyname/**").permitAll()
-				.antMatchers("/api/v1/detailed-listing/**").permitAll()
-				.antMatchers("/api/v1/list-and-mainimage").permitAll()
-				.antMatchers("/api/v1/all-categories").permitAll()
-				.antMatchers("/api/v1/all-listings/**").permitAll()
-				.antMatchers("/api/v1/find/**").permitAll()
-				.antMatchers("/api/v1/getlist/**").permitAll()
-				.antMatchers("/api/v1/search/**").permitAll()
-				.antMatchers("/api/v1/auth").permitAll()
-				.antMatchers("/api/v1/listby-categoryid/**").permitAll()
-				.antMatchers(HttpMethod.OPTIONS,"/api/v1/**").permitAll()
-				.and().authorizeRequests().antMatchers("/api/v1/auth/**").authenticated().and().exceptionHandling().and()
+		http.authorizeRequests().antMatchers("/add").permitAll().antMatchers("/api/v1/listbyname/**").permitAll()
+				.antMatchers(Common.BASE_URL+"/detailed/listing/**").permitAll()
+				.antMatchers(Common.BASE_URL+"/list/and/main/image").permitAll()
+				.antMatchers(Common.BASE_URL+"/all/categories").permitAll()
+				.antMatchers(Common.BASE_URL+"/all/listings/**").permitAll()
+				.antMatchers(Common.BASE_URL+"/find/**").permitAll()
+				.antMatchers(Common.BASE_URL+"/get/list/**").permitAll()
+				.antMatchers(Common.BASE_URL+"/search/**").permitAll()
+				.antMatchers(Common.BASE_URL+"/auth").permitAll()
+				.antMatchers(Common.BASE_URL+"/update/user/**").permitAll()
+				.antMatchers(Common.BASE_URL+"/update/listing/**").permitAll()
+				.antMatchers(Common.BASE_URL+"/listby/categoryid/**").permitAll()
+//				.antMatchers(HttpMethod.OPTIONS,"/api/v1/**").permitAll()
+				.and().authorizeRequests().antMatchers(Common.BASE_URL+"/auth/**").authenticated().and().exceptionHandling().and()
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 	}
