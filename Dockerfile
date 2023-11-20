@@ -1,4 +1,4 @@
-FROM jana-renter:11-jdk-alpine
+FROM jana-renter:17-jdk-alpine
 VOLUME /tmp
 COPY target/*.jar app.jar
 ENTRYPOINT ["java","-jar","/rental.jar"]
